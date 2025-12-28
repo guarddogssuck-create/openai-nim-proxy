@@ -6,9 +6,18 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middleware with increased payload limits
 app.use(cors());
-app.use(express.json({ limit: '100mb' })); app.use(express.urlencoded({ limit: '100mb', extended: true }));
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ limit: '500mb', extended: true }));
+
+// Increase max HTTP header size (helps with large requests)
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 
 // NVIDIA NIM API configuration
 const NIM_API_BASE = process.env.NIM_API_BASE || 'https://integrate.api.nvidia.com/v1';
@@ -37,7 +46,8 @@ app.get('/health', (req, res) => {
     status: 'ok', 
     service: 'OpenAI to NVIDIA NIM Proxy', 
     reasoning_display: SHOW_REASONING,
-    thinking_mode: ENABLE_THINKING_MODE
+    thinking_mode: ENABLE_THINKING_MODE,
+    payload_limit: '500mb'
   });
 });
 
@@ -71,7 +81,9 @@ app.post('/v1/chat/completions', async (req, res) => {
           max_tokens: 1
         }, {
           headers: { 'Authorization': `Bearer ${NIM_API_KEY}`, 'Content-Type': 'application/json' },
-          validateStatus: (status) => status < 500
+          validateStatus: (status) => status < 500,
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity
         }).then(res => {
           if (res.status >= 200 && res.status < 300) {
             nimModel = model;
@@ -101,13 +113,15 @@ app.post('/v1/chat/completions', async (req, res) => {
       stream: stream || false
     };
     
-    // Make request to NVIDIA NIM API
+    // Make request to NVIDIA NIM API with increased limits
     const response = await axios.post(`${NIM_API_BASE}/chat/completions`, nimRequest, {
       headers: {
         'Authorization': `Bearer ${NIM_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      responseType: stream ? 'stream' : 'json'
+      responseType: stream ? 'stream' : 'json',
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity
     });
     
     if (stream) {
@@ -121,13 +135,13 @@ app.post('/v1/chat/completions', async (req, res) => {
       
       response.data.on('data', (chunk) => {
         buffer += chunk.toString();
-        const lines = buffer.split('\\n');
+        const lines = buffer.split('\n');
         buffer = lines.pop() || '';
         
         lines.forEach(line => {
           if (line.startsWith('data: ')) {
             if (line.includes('[DONE]')) {
-              res.write(line + '\\n');
+              res.write(line + '\n');
               return;
             }
             
@@ -141,14 +155,14 @@ app.post('/v1/chat/completions', async (req, res) => {
                   let combinedContent = '';
                   
                   if (reasoning && !reasoningStarted) {
-                    combinedContent = '<think>\\n' + reasoning;
+                    combinedContent = '<think>\n' + reasoning;
                     reasoningStarted = true;
                   } else if (reasoning) {
                     combinedContent = reasoning;
                   }
                   
                   if (content && reasoningStarted) {
-                    combinedContent += '</think>\\n\\n' + content;
+                    combinedContent += '</think>\n\n' + content;
                     reasoningStarted = false;
                   } else if (content) {
                     combinedContent += content;
@@ -167,9 +181,9 @@ app.post('/v1/chat/completions', async (req, res) => {
                   delete data.choices[0].delta.reasoning_content;
                 }
               }
-              res.write(`data: ${JSON.stringify(data)}\\n\\n`);
+              res.write(`data: ${JSON.stringify(data)}\n\n`);
             } catch (e) {
-              res.write(line + '\\n');
+              res.write(line + '\n');
             }
           }
         });
@@ -191,7 +205,7 @@ app.post('/v1/chat/completions', async (req, res) => {
           let fullContent = choice.message?.content || '';
           
           if (SHOW_REASONING && choice.message?.reasoning_content) {
-            fullContent = '<think>\\n' + choice.message.reasoning_content + '\\n</think>\\n\\n' + fullContent;
+            fullContent = '<think>\n' + choice.message.reasoning_content + '\n</think>\n\n' + fullContent;
           }
           
           return {
@@ -240,6 +254,7 @@ app.all('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`OpenAI to NVIDIA NIM Proxy running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
+  console.log(`Payload limit: 500mb`);
   console.log(`Reasoning display: ${SHOW_REASONING ? 'ENABLED' : 'DISABLED'}`);
   console.log(`Thinking mode: ${ENABLE_THINKING_MODE ? 'ENABLED' : 'DISABLED'}`);
-});
+});                  
