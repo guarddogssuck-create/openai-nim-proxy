@@ -4,16 +4,12 @@
   "description": "OpenAI compatible proxy for NVIDIA NIM API",
   "main": "server.js",
   "scripts": {
-    "start": "node --max-http-header-size=80000 server.js",
-    "dev": "nodemon --max-http-header-size=80000 server.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "axios": "^1.6.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
   },
   "engines": {
     "node": "22.x"
