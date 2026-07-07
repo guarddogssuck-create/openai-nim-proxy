@@ -33,7 +33,7 @@ const ENABLE_THINKING_MODE = true; // Set to true to enable chat_template_kwargs
 // Not every NIM-hosted model implements this â€” sending it to a model that
 // doesn't understand it can cause a strict-schema 400. Add/remove as needed.
 const THINKING_CAPABLE_MODELS = [
-  'moonshotai/kimi-k2.6',
+  'moonshotai/kimi-k2.7-code',
   'moonshotai/kimi-k2-thinking',
   'qwen/qwen3-next-80b-a3b-thinking',
   'deepseek-ai/deepseek-v3.2',
