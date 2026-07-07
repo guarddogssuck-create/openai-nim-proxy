@@ -23,14 +23,14 @@ app.use((req, res, next) => {
 const NIM_API_BASE = process.env.NIM_API_BASE || 'https://integrate.api.nvidia.com/v1';
 const NIM_API_KEY = process.env.NIM_API_KEY;
 
-// ðŸ”¥ REASONING DISPLAY TOGGLE - Shows/hides reasoning in output
+// 🔥 REASONING DISPLAY TOGGLE - Shows/hides reasoning in output
 const SHOW_REASONING = false; // Set to true to show reasoning with <think> tags
 
-// ðŸ”¥ THINKING MODE TOGGLE - Enables thinking for specific models that support it
+// 🔥 THINKING MODE TOGGLE - Enables thinking for specific models that support it
 const ENABLE_THINKING_MODE = true; // Set to true to enable chat_template_kwargs thinking parameter
 
 // Models known to support the chat_template_kwargs.thinking switch.
-// Not every NIM-hosted model implements this â€” sending it to a model that
+// Not every NIM-hosted model implements this — sending it to a model that
 // doesn't understand it can cause a strict-schema 400. Add/remove as needed.
 const THINKING_CAPABLE_MODELS = [
   'moonshotai/kimi-k2.6',
