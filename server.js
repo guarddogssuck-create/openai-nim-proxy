@@ -33,21 +33,19 @@ const ENABLE_THINKING_MODE = true; // Set to true to enable chat_template_kwargs
 // Not every NIM-hosted model implements this — sending it to a model that
 // doesn't understand it can cause a strict-schema 400. Add/remove as needed.
 const THINKING_CAPABLE_MODELS = [
-  'moonshotai/kimi-k2.6',
-  'moonshotai/kimi-k2-thinking',
-  'qwen/qwen3-next-80b-a3b-thinking',
-  'deepseek-ai/deepseek-v3.2',
-  'deepseek-ai/deepseek-v4-pro'
+  'moonshotai/kimi-k2.7-code',
+  'deepseek-ai/deepseek-v4-pro', 
+  'deepseek-ai/deepseek-v4-flash' 
 ];
 
 // Model mapping (adjust based on available NIM models)
 const MODEL_MAPPING = {
-  'kimi': 'moonshotai/kimi-k2.6',
+  'kimi': 'moonshotai/kimi-k2.7-code',
   'gpt-4': 'nvidia/nemotron-3-nano-30b-a3b',
   'gpt-4-turbo': 'moonshotai/kimi-k2-thinking',
   'deepseek': 'deepseek-ai/deepseek-v4-pro',
   'glm': 'z-ai/glm-5.2',
-  'claude-3-sonnet': 'deepseek-ai/deepseek-v3.2',
+  'claude-3-sonnet': 'deepseek-ai/deepseek-v4-flash',
   'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking'
 };
 
