@@ -34,8 +34,10 @@ const ENABLE_THINKING_MODE = true; // Set to true to enable chat_template_kwargs
 // doesn't understand it can cause a strict-schema 400. Add/remove as needed.
 const THINKING_CAPABLE_MODELS = [
   'moonshotai/kimi-k2.7-code',
-  'deepseek-ai/deepseek-v4-pro', 
-  'deepseek-ai/deepseek-v4-flash' 
+  'z-ai/glm-5.2',
+  'qwen/qwen3-next-80b-a3b-thinking',
+  'deepseek-ai/deepseek-v3.2',
+  'deepseek-ai/deepseek-v4-pro'
 ];
 
 // Model mapping (adjust based on available NIM models)
@@ -45,7 +47,7 @@ const MODEL_MAPPING = {
   'gpt-4-turbo': 'moonshotai/kimi-k2-thinking',
   'deepseek': 'deepseek-ai/deepseek-v4-pro',
   'glm': 'z-ai/glm-5.2',
-  'claude-3-sonnet': 'deepseek-ai/deepseek-v4-flash',
+  'flashseek': 'deepseek-ai/deepseek-v4-flash',
   'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking'
 };
 
@@ -136,7 +138,8 @@ app.post('/v1/chat/completions', async (req, res) => {
       },
       responseType: stream ? 'stream' : 'json',
       maxBodyLength: Infinity,
-      maxContentLength: Infinity
+      maxContentLength: Infinity,
+      timeout: 300000 // 30 seconds — adjust this threshold as needed
     });
 
     if (stream) {
@@ -246,11 +249,18 @@ app.post('/v1/chat/completions', async (req, res) => {
     // Log the REAL error body from NIM, not just axios's generic message
     console.error('Proxy error:', JSON.stringify(error.response?.data || error.message, null, 2));
 
-    res.status(error.response?.status || 500).json({
+    // Distinguish timeouts (model likely degraded/unresponsive) from other failures
+    const isTimeout = error.code === 'ECONNABORTED';
+    const status = error.response?.status || (isTimeout ? 504 : 500);
+    const message = isTimeout
+      ? 'Network issues or rate limited — request timed out waiting for NIM'
+      : (error.response?.data?.error?.message || error.message || 'Internal server error');
+
+    res.status(status).json({
       error: {
-        message: error.response?.data?.error?.message || error.message || 'Internal server error',
-        type: 'invalid_request_error',
-        code: error.response?.status || 500,
+        message,
+        type: isTimeout ? 'timeout_error' : 'invalid_request_error',
+        code: status,
         nim_detail: error.response?.data || null
       }
     });
