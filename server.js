@@ -43,9 +43,9 @@ const THINKING_CAPABLE_MODELS = [
 // Model mapping (adjust based on available NIM models)
 const MODEL_MAPPING = {
   'kimi': 'moonshotai/kimi-k3',
-  'gpt-4': 'nvidia/nemotron-3-nano-30b-a3b',
+  'stepfun': 'stepfun-ai/step-5-preview',
   'gpt-4-turbo': 'moonshotai/kimi-k2-thinking',
-  'deepseek': 'deepseek-ai/deepseek-v4-flash-0731',
+  'deepseek': 'deepseek-ai/deepseek-v4.1-flash',
   'glm': 'z-ai/glm-5.3',
   'minimax': 'minimaxai/minimax-m3',
   'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking'
