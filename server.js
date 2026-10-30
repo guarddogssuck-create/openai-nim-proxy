@@ -42,12 +42,12 @@ const THINKING_CAPABLE_MODELS = [
 
 // Model mapping (adjust based on available NIM models)
 const MODEL_MAPPING = {
-  'kimi': 'moonshotai/kimi-k3',
+  'kimi': 'moonshotai/kimi-k3.1-pro',
   'stepfun': 'stepfun-ai/step-5-preview',
-  'gpt-4-turbo': 'moonshotai/kimi-k2-thinking',
+  'mistral': 'mistralai/mistral-large-4-1t-a52b',
   'deepseek': 'deepseek-ai/deepseek-v4.1-flash',
-  'glm': 'z-ai/glm-5.3',
-  'minimax': 'minimaxai/minimax-m3',
+  'glm': 'z-ai/glm-5.3-flash',
+  'minimax': 'minimaxai/minimax-m3.1-flash',
   'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking'
 };
 
