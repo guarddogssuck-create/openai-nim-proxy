@@ -139,7 +139,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       responseType: stream ? 'stream' : 'json',
       maxBodyLength: Infinity,
       maxContentLength: Infinity,
-      timeout: 600000 // 30 seconds — adjust this threshold as needed
+      timeout: 6000000 // 30 seconds — adjust this threshold as needed
     });
 
     if (stream) {
